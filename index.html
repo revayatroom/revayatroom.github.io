@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>اتاق روایت</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060809;
+  --bg-elev:#0d1116;
+  --bg-card:#12161c;
+  --bg-card-hi:#171c23;
+  --fog:#1b222b;
+  --line:rgba(234,231,222,.09);
+  --ink:#eae7de;
+  --ink-dim:#9aa3ad;
+  --ink-faint:#5c6570;
+  --blood:#a91e2c;
+  --blood-bright:#d4303f;
+  --ember:#c9932f;
+  --ember-soft:#e0b768;
+  --shadow:0 20px 60px rgba(0,0,0,.5);
+  --radius:2px;
+  --maxw:1120px;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Vazirmatn',system-ui,sans-serif;
+  font-weight:400;
+  line-height:1.9;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+  position:relative;
+  overflow-x:hidden;
+}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;cursor:pointer;}
+h1,h2,h3{margin:0;font-weight:800;letter-spacing:0;}
+p{margin:0;}
+img{max-width:100%;display:block;}
+::selection{background:var(--blood);color:#fff;}
+:focus-visible{outline:2px solid var(--ember);outline-offset:3px;}
+/* ---------- background scenery ---------- */
+.skyfx{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.sky{position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 90% 60% at 50% -10%, rgba(74,44,44,.28), transparent 60%),
+    linear-gradient(180deg,#0a0c10 0%,#0c1015 35%,#0d1218 60%,#06080a 100%);
+}
+.clouds{position:absolute;inset:0;}
+.cloud{position:absolute;border-radius:50%;filter:blur(50px);opacity:.55;}
+.cloud.c1{width:70vw;height:26vw;top:2%;right:-15%;background:radial-gradient(closest-side, rgba(60,64,74,.55), transparent);animation:driftA 64s ease-in-out infinite alternate;}
+.cloud.c2{width:55vw;height:22vw;top:10%;left:-18%;background:radial-gradient(closest-side, rgba(90,50,55,.35), transparent);animation:driftB 80s ease-in-out infinite alternate;}
+.cloud.c3{width:40vw;height:18vw;top:1%;left:20%;background:radial-gradient(closest-side, rgba(50,55,66,.45), transparent);animation:driftA 50s ease-in-out infinite alternate-reverse;}
+@keyframes driftA{from{transform:translateX(-4%);}to{transform:translateX(6%);}}
+@keyframes driftB{from{transform:translateX(5%);}to{transform:translateX(-6%);}}
+.skyline{position:absolute;bottom:0;left:0;width:100%;height:34vh;min-height:220px;}
+.bldg{fill:var(--bg-elev);}
+.win{fill:var(--ember);animation:winFlicker 6s ease-in-out infinite;}
+.tower{fill:var(--bg-card);}
+@keyframes winFlicker{0%,100%{opacity:.8}45%{opacity:.12}55%{opacity:.8}}
+.vignette{position:absolute;inset:0;background:radial-gradient(ellipse 80% 70% at 50% 40%, transparent 40%, rgba(0,0,0,.55) 100%);}
+@media (prefers-reduced-motion:reduce){
+  .cloud{animation:none !important;}
+  .win{animation:none !important;opacity:.5;}
+}
+/* ---------- layout shells ---------- */
+.nav{position:sticky;top:0;z-index:40;display:flex;align-items:center;justify-content:space-between;
+  padding:18px clamp(18px,4vw,48px);
+  background:linear-gradient(180deg, rgba(6,8,9,.92), rgba(6,8,9,.7));
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand-mark{width:34px;height:34px;flex:none;}
+.brand-word{font-weight:800;font-size:1.15rem;letter-spacing:.5px;}
+.nav-links{display:flex;align-items:center;gap:clamp(14px,2.4vw,30px);font-size:.92rem;color:var(--ink-dim);}
+.nav-links a{transition:color .2s;white-space:nowrap;}
+.nav-links a:hover, .nav-links a.active{color:var(--ink);}
+.sound-toggle{background:transparent;border:1px solid var(--line);border-radius:50%;width:38px;height:38px;
+  display:flex;align-items:center;justify-content:center;color:var(--ink-dim);transition:.2s;}
+.sound-toggle:hover{border-color:var(--ember);color:var(--ember-soft);}
+.sound-toggle svg{width:16px;height:16px;}
+.sound-toggle.on{color:var(--ember-soft);border-color:var(--ember);}
+main{position:relative;z-index:1;min-height:70vh;}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 clamp(18px,4vw,48px);}
+.site-footer{position:relative;z-index:1;text-align:center;padding:40px 20px 32px;color:var(--ink-faint);font-size:.85rem;border-top:1px solid var(--line);margin-top:80px;}
+.site-footer strong{color:var(--ink-dim);font-weight:500;}
+/* ---------- home hero ---------- */
+.hero{min-height:88vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 20px 40px;}
+.hero-eyebrow{opacity:0;animation:riseIn .9s .1s ease forwards;color:var(--ink-faint);font-size:.85rem;margin-bottom:18px;}
+.hero h1{opacity:0;animation:riseIn .9s .28s ease forwards;font-size:clamp(2.6rem,9vw,5.4rem);line-height:1.1;}
+.hero .tagline{opacity:0;animation:riseIn .9s .5s ease forwards;margin-top:22px;font-size:clamp(1.05rem,2.4vw,1.35rem);color:var(--ember-soft);font-weight:500;}
+.hero .scrolldown{opacity:0;animation:riseIn .9s .8s ease forwards, bob 2.4s 1.8s ease-in-out infinite;margin-top:56px;color:var(--ink-faint);font-size:.8rem;}
+@keyframes riseIn{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+@keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(8px);}}
+@media (prefers-reduced-motion:reduce){
+  .hero-eyebrow,.hero h1,.hero .tagline,.hero .scrolldown{animation:none !important;opacity:1 !important;}
+}
+/* ---------- shows shelf ---------- */
+.section-label{color:var(--ink-faint);font-size:.85rem;margin-bottom:22px;padding-bottom:14px;border-bottom:1px solid var(--line);}
+.shelf{padding:20px 0 100px;}
+.showgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:28px;margin-top:24px;}
+.showcard{position:relative;display:block;border:1px solid var(--line);background:var(--bg-card);overflow:hidden;transition:transform .35s ease, border-color .35s ease;}
+.showcard:hover{transform:translateY(-6px);border-color:rgba(201,147,47,.4);}
+.showcard .art{position:relative;aspect-ratio:2/3;overflow:hidden;background:var(--bg-elev);}
+.showcard .art img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease;}
+.showcard:hover .art img{transform:scale(1.045);}
+.showcard .art::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%, rgba(6,8,9,.92) 100%);}
+.badge{position:absolute;top:14px;right:14px;background:rgba(6,8,9,.78);border:1px solid var(--line);
+  padding:6px 12px;font-size:.74rem;color:var(--ember-soft);backdrop-filter:blur(4px);}
+.badge.soon{color:var(--ink-dim);}
+.showcard .meta{padding:18px 18px 22px;position:relative;}
+.showcard h3{font-size:1.2rem;margin-bottom:8px;}
+.showcard .desc{color:var(--ink-dim);font-size:.88rem;line-height:1.8;}
+/* ---------- podcast detail hero ---------- */
+.phero{position:relative;min-height:78vh;display:flex;align-items:flex-end;overflow:hidden;}
+.phero .bg{position:absolute;inset:0;}
+.phero .bg img{width:100%;height:100%;object-fit:cover;object-position:top center;}
+.phero .bg::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg, rgba(6,8,9,.15) 0%, rgba(6,8,9,.35) 45%, rgba(6,8,9,.96) 92%),
+             linear-gradient(90deg, rgba(6,8,9,.55) 0%, transparent 35%);}
+.phero-content{position:relative;z-index:2;width:100%;padding:0 clamp(18px,4vw,48px) 56px;}
+.phero-logo{max-width:340px;width:60vw;margin-bottom:8px;filter:drop-shadow(0 8px 30px rgba(0,0,0,.6));}
+.phero-tag{color:var(--ink-dim);font-size:.95rem;margin-top:6px;}
+.phero-premiere{display:inline-block;margin-top:22px;padding:9px 16px;background:rgba(169,30,44,.18);
+  border:1px solid rgba(169,30,44,.5);color:#f2b9bd;font-size:.85rem;}
+.pbody{padding:64px 0 40px;}
+.synopsis{max-width:62ch;color:var(--ink-dim);font-size:1.02rem;line-height:2;}
+.credits{margin-top:44px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:22px 30px;
+  padding-top:28px;border-top:1px solid var(--line);}
+.credit dt{color:var(--ink-faint);font-size:.78rem;margin-bottom:6px;}
+.credit dd{margin:0;font-size:.98rem;font-weight:500;}
+/* ---------- countdown ---------- */
+.countdown{margin-top:56px;padding:34px clamp(18px,4vw,40px);background:var(--bg-card);border:1px solid var(--line);}
+.countdown .cd-label{color:var(--ink-faint);font-size:.85rem;margin-bottom:20px;}
+.cd-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;text-align:center;}
+.cd-unit{padding:10px 4px;}
+.cd-num{font-size:clamp(1.8rem,5vw,3rem);font-weight:800;color:var(--ember-soft);font-variant-numeric:tabular-nums;line-height:1;}
+.cd-word{margin-top:10px;color:var(--ink-faint);font-size:.8rem;}
+.cd-div{width:1px;background:var(--line);margin:6px 0;}
+/* ---------- episodes ---------- */
+.episodes{margin-top:64px;}
+.eplist{margin-top:20px;border-top:1px solid var(--line);}
+.eprow{display:flex;align-items:center;gap:18px;padding:20px 4px;border-bottom:1px solid var(--line);transition:background .2s;}
+.eprow:hover{background:rgba(255,255,255,.02);}
+.epnum{flex:none;width:46px;font-size:1.3rem;font-weight:800;color:var(--ink-faint);}
+.epinfo{flex:1;min-width:0;}
+.eptitle{font-weight:600;font-size:1rem;}
+.epstate{color:var(--ink-faint);font-size:.82rem;margin-top:4px;}
+.epbtn{flex:none;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;color:var(--ink-faint);background:transparent;}
+.epbtn svg{width:14px;height:14px;}
+.epbtn.locked{cursor:not-allowed;}
+.epbtn.locked svg{width:13px;height:13px;}
+.demoplayer-cta{margin-top:26px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:12px 22px;border:1px solid var(--ember);
+  background:transparent;color:var(--ember-soft);font-size:.9rem;font-weight:500;transition:.2s;}
+.btn:hover{background:rgba(201,147,47,.12);}
+.btn.ghost{border-color:var(--line);color:var(--ink-dim);}
+.btn.ghost:hover{border-color:var(--ink-dim);color:var(--ink);}
+.hint{color:var(--ink-faint);font-size:.8rem;}
+/* ---------- soon page ---------- */
+.soon-body{padding:70px 0 40px;text-align:center;}
+.soon-body p{max-width:52ch;margin:0 auto;color:var(--ink-dim);}
+/* ---------- comments ---------- */
+.comments{margin-top:80px;padding-top:36px;border-top:1px solid var(--line);}
+.comment-form{margin-top:24px;display:grid;gap:12px;max-width:640px;}
+.comment-form input,.comment-form textarea{
+  background:var(--bg-card);border:1px solid var(--line);color:var(--ink);padding:13px 14px;
+  font-family:inherit;font-size:.94rem;border-radius:var(--radius);resize:vertical;}
+.comment-form input:focus,.comment-form textarea:focus{border-color:var(--ember);}
+.comment-form textarea{min-height:96px;}
+.comment-list{margin-top:36px;display:flex;flex-direction:column;gap:22px;}
+.comment{padding:16px 0;border-bottom:1px solid var(--line);}
+.comment .c-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:8px;}
+.comment .c-name{font-weight:600;font-size:.94rem;}
+.comment .c-time{color:var(--ink-faint);font-size:.76rem;}
+.comment .c-text{color:var(--ink-dim);font-size:.92rem;line-height:1.85;}
+.empty-note{color:var(--ink-faint);font-size:.88rem;margin-top:20px;}
+/* ---------- account ---------- */
+.account-wrap{min-height:78vh;display:flex;align-items:center;justify-content:center;padding:80px 20px;}
+.account-card{width:100%;max-width:420px;background:var(--bg-card);border:1px solid var(--line);padding:40px clamp(24px,5vw,44px);}
+.account-card h2{font-size:1.5rem;margin-bottom:8px;}
+.account-card .sub{color:var(--ink-faint);font-size:.85rem;margin-bottom:30px;}
+.account-form{display:grid;gap:14px;}
+.field{display:grid;gap:7px;}
+.field label{font-size:.82rem;color:var(--ink-dim);}
+.field input{background:var(--bg-elev);border:1px solid var(--line);color:var(--ink);padding:13px 14px;font-family:inherit;font-size:.94rem;}
+.field input:focus{border-color:var(--ember);}
+.account-form .btn{justify-content:center;margin-top:10px;width:100%;}
+.account-note{margin-top:22px;color:var(--ink-faint);font-size:.78rem;line-height:1.9;}
+.welcome-box{text-align:center;}
+.welcome-box .avatar{width:64px;height:64px;border-radius:50%;margin:0 auto 18px;background:linear-gradient(135deg,var(--blood),var(--ember));
+  display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:800;color:#fff;}
+/* ---------- toast ---------- */
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);z-index:200;
+  background:var(--bg-card-hi);border:1px solid var(--line);padding:12px 22px;font-size:.86rem;color:var(--ink);
+  opacity:0;transition:opacity .3s, transform .3s;pointer-events:none;box-shadow:var(--shadow);}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+/* ---------- sticky player bar ---------- */
+.player-bar{position:fixed;left:0;right:0;bottom:0;z-index:100;background:rgba(9,11,14,.96);backdrop-filter:blur(14px);
+  border-top:1px solid var(--line);padding:14px clamp(14px,3vw,32px);display:flex;align-items:center;gap:18px;
+  transform:translateY(120%);transition:transform .4s ease;}
+.player-bar.show{transform:translateY(0);}
+.pb-play{flex:none;width:44px;height:44px;border-radius:50%;background:var(--ember);border:none;
+  display:flex;align-items:center;justify-content:center;color:#181008;}
+.pb-play svg{width:16px;height:16px;}
+.pb-info{flex:none;min-width:120px;max-width:220px;}
+.pb-title{font-size:.88rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pb-sub{font-size:.74rem;color:var(--ink-faint);}
+.pb-progress{flex:1;display:flex;align-items:center;gap:10px;}
+.pb-time{font-size:.74rem;color:var(--ink-faint);font-variant-numeric:tabular-nums;flex:none;width:38px;}
+.pb-bar{flex:1;height:4px;background:var(--line);position:relative;cursor:pointer;}
+.pb-bar-fill{position:absolute;inset-inline-start:0;top:0;bottom:0;background:var(--ember);width:0%;}
+.pb-bar-handle{position:absolute;top:50%;width:11px;height:11px;border-radius:50%;background:var(--ember-soft);
+  transform:translate(50%,-50%);inset-inline-start:0%;box-shadow:0 0 0 4px rgba(201,147,47,.15);}
+.pb-vol{flex:none;display:flex;align-items:center;gap:8px;color:var(--ink-faint);}
+.pb-vol svg{width:15px;height:15px;}
+.pb-vol input[type=range]{width:70px;accent-color:var(--ember);}
+.pb-close{flex:none;background:transparent;border:none;color:var(--ink-faint);width:30px;height:30px;}
+.pb-close svg{width:14px;height:14px;}
+@media (max-width:760px){
+  .pb-info{max-width:100px;}
+  .pb-vol{display:none;}
+}
+/* ---------- responsive ---------- */
+@media (max-width:720px){
+  .nav{flex-wrap:wrap;row-gap:12px;}
+  .nav-links{gap:12px;font-size:.78rem;flex-wrap:wrap;}
+  .brand-word{font-size:1rem;}
+  .credits{grid-template-columns:1fr 1fr;}
+  .cd-grid{gap:6px;}
+}
+</style>
+</head>
+<body>
+<div class="skyfx" aria-hidden="true">
+  <div class="sky"></div>
+  <div class="clouds"><span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span></div>
+  <svg class="skyline" id="skylineSvg" viewBox="0 0 1600 420" preserveAspectRatio="none"></svg>
+  <div class="vignette"></div>
+</div>
+<header class="nav">
+  <a href="#home" class="brand" data-nav>
+    <svg class="brand-mark" viewBox="0 0 40 40" fill="none">
+      <path d="M12 8V32" stroke="var(--ink)" stroke-width="1.6"/>
+      <path d="M28 8V32" stroke="var(--ink)" stroke-width="1.6"/>
+      <path d="M12 32H28" stroke="var(--ink)" stroke-width="1.6"/>
+      <rect x="16" y="20" width="2.6" height="8" fill="var(--ember)"/>
+      <rect x="20.5" y="14" width="2.6" height="14" fill="var(--blood-bright)"/>
+      <rect x="25" y="17" width="2.6" height="11" fill="var(--ember)"/>
+    </svg>
+    <span class="brand-word">اتاق روایت</span>
+  </a>
+  <nav class="nav-links">
+    <a href="#khaterat" data-nav data-route="khaterat">خاطرات یک بازنده</a>
+    <a href="#farzand" data-nav data-route="farzand">فرزند سکوت</a>
+    <a href="#bikhodahafezi" data-nav data-route="bikhodahafezi">بی خداحافظی</a>
+    <a href="#account" data-nav data-route="account" id="accountLink">حساب کاربری</a>
+    <button class="sound-toggle" id="soundToggle" title="موسیقی زمینه" aria-pressed="false">
+      <svg id="soundIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M4 9v6h4l5 5V4L8 9H4z"/>
+        <path id="soundWaveOff" d="M16 8.5c1.2 1 2 2.2 2 3.5s-.8 2.5-2 3.5" opacity="0.35"/>
+      </svg>
+    </button>
+  </nav>
+</header>
+<main id="app"></main>
+<footer class="site-footer">
+  <p><strong>اتاق روایت</strong> — هر داستانی آغازی دارد</p>
+</footer>
+<div class="player-bar" id="playerBar">
+  <button class="pb-play" id="pbPlay">
+    <svg id="pbPlayIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+  </button>
+  <div class="pb-info">
+    <div class="pb-title" id="pbTitle">—</div>
+    <div class="pb-sub" id="pbSub">—</div>
+  </div>
+  <div class="pb-progress">
+    <span class="pb-time" id="pbCur">۰:۰۰</span>
+    <div class="pb-bar" id="pbBar"><div class="pb-bar-fill" id="pbFill"></div><div class="pb-bar-handle" id="pbHandle"></div></div>
+    <span class="pb-time" id="pbDur">۰:۰۰</span>
+  </div>
+  <div class="pb-vol">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 9v6h4l5 5V4L8 9H4z"/></svg>
+    <input type="range" id="pbVol" min="0" max="100" value="70">
+  </div>
+  <button class="pb-close" id="pbClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+</div>
+<div class="toast" id="toast"></div>
+<audio id="bgmAudio" preload="auto" loop></audio>
+<audio id="episodeAudio" preload="none"></audio>
+<script>
+/* ============ assets ============ */
+const ASSET_KHATERAT_POSTER = "assets/khaterat-poster.jpg";
+const ASSET_KHATERAT_LOGO = "assets/khaterat-logo.png";
+const ASSET_FARZAND_POSTER = "assets/farzand-poster.jpg";
+const ASSET_BIKHODA_POSTER = "assets/bikhoda-poster.jpg";
+const ASSET_BGM = "assets/bgm.m4a";
+const ASSET_EP1_AUDIO = "assets/ep1-audio.m4a";
+const ASSET_BIKHODA_EP1_AUDIO = "assets/bikhoda-ep1-audio.m4a";
+/* ============ helpers ============ */
+const faDigits = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+function toFa(n){ return String(n).replace(/[0-9]/g, d => faDigits[d]); }
+function pad2(n){ return String(n).padStart(2,'0'); }
+function fmtTime(sec){
+  sec = Math.max(0, Math.floor(sec));
+  const m = Math.floor(sec/60), s = sec%60;
+  return toFa(m) + ':' + toFa(pad2(s));
+}
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(showToast._tm);
+  showToast._tm = setTimeout(()=>t.classList.remove('show'), 2600);
+}
+/* ============ skyline background ============ */
+function buildSkyline(){
+  const svg = document.getElementById('skylineSvg');
+  const NS = 'http://www.w3.org/2000/svg';
+  const width = 1600, groundY = 420;
+  let seed = 1337;
+  function rand(){ seed = (seed*9301+49297) % 233280; return seed/233280; }
+  let x = -20;
+  const buildings = [];
+  while (x < width+20){
+    const w = 34 + rand()*46;
+    const h = 55 + rand()*175;
+    buildings.push({x,w,h});
+    x += w + 6 + rand()*10;
+  }
+  const frag = document.createDocumentFragment();
+  buildings.forEach(b=>{
+    const rect = document.createElementNS(NS,'rect');
+    rect.setAttribute('x', b.x); rect.setAttribute('y', groundY-b.h);
+    rect.setAttribute('width', b.w); rect.setAttribute('height', b.h+4);
+    rect.setAttribute('class','bldg');
+    frag.appendChild(rect);
+    const cols = Math.max(2, Math.floor(b.w/14));
+    const rows = Math.max(3, Math.floor(b.h/18));
+    for(let r=0;r<rows;r++){
+      for(let c=0;c<cols;c++){
+        if (rand() > 0.64){
+          const win = document.createElementNS(NS,'rect');
+          win.setAttribute('x', b.x+6+c*13);
+          win.setAttribute('y', groundY-b.h+10+r*16);
+          win.setAttribute('width',5); win.setAttribute('height',7);
+          win.setAttribute('class','win');
+          win.style.animationDelay = (rand()*6).toFixed(2)+'s';
+          frag.appendChild(win);
+        }
+      }
+    }
+  });
+  const tx = width*0.63, tb = groundY;
+  const tower = document.createElementNS(NS,'path');
+  tower.setAttribute('class','tower');
+  tower.setAttribute('d', `M ${tx-7} ${tb} L ${tx-11} ${tb-150} L ${tx-3} ${tb-150} L ${tx-3} ${tb-208}
+    Q ${tx} ${tb-230} ${tx+3} ${tb-208} L ${tx+3} ${tb-150} L ${tx+11} ${tb-150} L ${tx+7} ${tb} Z
+    M ${tx-1.4} ${tb-208} L ${tx+1.4} ${tb-208} L ${tx+1.4} ${tb-262} L ${tx-1.4} ${tb-262} Z`);
+  frag.appendChild(tower);
+  svg.appendChild(frag);
+}
+/* ============ shared audio-context bootstrap (used by the demo player's synth preview) ============ */
+let actx = null;
+function ensureAudio(){
+  if (!actx){
+    actx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (actx.state === 'suspended') actx.resume();
+}
+/* ============ background music (site.mp3) ============ */
+const bgmAudio = document.getElementById('bgmAudio');
+bgmAudio.src = ASSET_BGM;
+bgmAudio.loop = true;
+bgmAudio.volume = 0;
+let bgmOn = false, bgmStarted = false, bgmUserWantsOn = true, bgmFadeRAF = null;
+function fadeBgmTo(target, duration){
+  cancelAnimationFrame(bgmFadeRAF);
+  const start = bgmAudio.volume;
+  const t0 = performance.now();
+  function step(now){
+    const t = Math.min(1, (now - t0) / duration);
+    bgmAudio.volume = start + (target - start) * t;
+    if (t < 1) bgmFadeRAF = requestAnimationFrame(step);
+  }
+  bgmFadeRAF = requestAnimationFrame(step);
+}
+function updateSoundToggleUI(){
+  const icon = document.getElementById('soundToggle');
+  if (icon) icon.classList.toggle('on', bgmOn);
+}
+function startBgm(){
+  if (bgmStarted) return;
+  bgmStarted = true;
+  const p = bgmAudio.play();
+  const onOk = ()=>{ bgmOn = bgmUserWantsOn; updateSoundToggleUI(); fadeBgmTo(bgmUserWantsOn ? 0.35 : 0, 1800); };
+  if (p && p.then) p.then(onOk).catch(()=>{ bgmStarted = false; });
+  else onOk();
+}
+function setBgmOn(on){
+  bgmOn = on;
+  bgmUserWantsOn = on;
+  updateSoundToggleUI();
+  if (!bgmStarted) return;
+  fadeBgmTo(on ? 0.35 : 0, 900);
+}
+function duckBgm(down){
+  if (!bgmStarted) return;
+  fadeBgmTo(down ? 0 : (bgmUserWantsOn ? 0.35 : 0), 700);
+}
+/* ============ player bar: real episode audio + synthetic preview for episodes without audio yet ============ */
+let playerMode = null; // 'real' | 'demo'
+const episodeAudio = document.getElementById('episodeAudio');
+function updatePbPlayIcon(playing){
+  document.getElementById('pbPlayIcon').innerHTML = playing
+    ? '<rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/>'
+    : '<path d="M8 5v14l11-7z"/>';
+}
+function setPbProgress(cur, dur){
+  const pct = dur > 0 ? Math.min(100, (cur/dur)*100) : 0;
+  document.getElementById('pbFill').style.width = pct+'%';
+  document.getElementById('pbHandle').style.insetInlineStart = pct+'%';
+  document.getElementById('pbCur').textContent = fmtTime(cur);
+  document.getElementById('pbDur').textContent = fmtTime(dur || 0);
+}
+function openPlayerChrome(title, sub){
+  document.getElementById('playerBar').classList.add('show');
+  document.getElementById('pbTitle').textContent = title;
+  document.getElementById('pbSub').textContent = sub;
+}
+/* ---- real episode audio ---- */
+episodeAudio.addEventListener('timeupdate', ()=>{ if (playerMode==='real') setPbProgress(episodeAudio.currentTime, episodeAudio.duration||0); });
+episodeAudio.addEventListener('loadedmetadata', ()=>{ if (playerMode==='real') setPbProgress(episodeAudio.currentTime, episodeAudio.duration||0); });
+episodeAudio.addEventListener('play', ()=>{ if (playerMode==='real') updatePbPlayIcon(true); });
+episodeAudio.addEventListener('pause', ()=>{ if (playerMode==='real') updatePbPlayIcon(false); });
+episodeAudio.addEventListener('ended', ()=>{ if (playerMode==='real'){ updatePbPlayIcon(false); duckBgm(false); episodeAudio.currentTime = 0; } });
+function playRealEpisode(src, title, sub){
+  if (playerMode === 'demo') stopDemo();
+  playerMode = 'real';
+  openPlayerChrome(title, sub);
+  duckBgm(true);
+  episodeAudio.volume = document.getElementById('pbVol').value/100;
+  if (episodeAudio.dataset.src !== src){
+    episodeAudio.src = src;
+    episodeAudio.dataset.src = src;
+  }
+  episodeAudio.play().catch(()=>{});
+}
+/* ---- synthetic demo tone (placeholder preview for episodes without real audio yet) ---- */
+const DEMO_DURATION = 26;
+let demoOsc = null, demoGain = null, demoPlaying = false, demoElapsed = 0, demoStartCtxTime = 0, demoRAF = null;
+function applyDemoGain(playing){
+  if (!demoGain) return;
+  const now = actx.currentTime;
+  const target = playing ? (document.getElementById('pbVol').value/100) * 0.14 : 0;
+  demoGain.gain.cancelScheduledValues(now);
+  demoGain.gain.setValueAtTime(demoGain.gain.value, now);
+  demoGain.gain.linearRampToValueAtTime(target, now + 0.35);
+}
+function playDemo(title, sub){
+  if (playerMode === 'real'){ episodeAudio.pause(); }
+  playerMode = 'demo';
+  ensureAudio();
+  openPlayerChrome(title, sub);
+  duckBgm(true);
+  if (!demoOsc){
+    demoGain = actx.createGain();
+    demoGain.gain.value = 0;
+    demoGain.connect(actx.destination);
+    demoOsc = actx.createOscillator();
+    demoOsc.type = 'sine';
+    demoOsc.frequency.value = 220;
+    const lfo = actx.createOscillator();
+    lfo.frequency.value = 0.12;
+    const lfoGain = actx.createGain();
+    lfoGain.gain.value = 30;
+    lfo.connect(lfoGain); lfoGain.connect(demoOsc.frequency);
+    demoOsc.connect(demoGain);
+    demoOsc.start(); lfo.start();
+  }
+  demoPlaying = true;
+  demoStartCtxTime = actx.currentTime - demoElapsed;
+  applyDemoGain(true);
+  updatePbPlayIcon(true);
+  tickDemo();
+}
+function pauseDemo(){
+  demoPlaying = false;
+  duckBgm(false);
+  applyDemoGain(false);
+  updatePbPlayIcon(false);
+  cancelAnimationFrame(demoRAF);
+}
+function stopDemo(){
+  pauseDemo();
+  demoElapsed = 0;
+}
+function tickDemo(){
+  if (!demoPlaying) return;
+  demoElapsed = actx.currentTime - demoStartCtxTime;
+  if (demoElapsed >= DEMO_DURATION){ demoElapsed = 0; demoStartCtxTime = actx.currentTime; }
+  setPbProgress(demoElapsed, DEMO_DURATION);
+  demoRAF = requestAnimationFrame(tickDemo);
+}
+/* ---- unified transport controls ---- */
+function playerToggle(){
+  if (!document.getElementById('playerBar').classList.contains('show')) return;
+  if (playerMode === 'real'){
+    if (episodeAudio.paused){ episodeAudio.play().catch(()=>{}); duckBgm(true); }
+    else { episodeAudio.pause(); duckBgm(false); }
+  } else if (playerMode === 'demo'){
+    if (demoPlaying) pauseDemo();
+    else { demoStartCtxTime = actx.currentTime - demoElapsed; demoPlaying = true; duckBgm(true); applyDemoGain(true); updatePbPlayIcon(true); tickDemo(); }
+  }
+}
+function playerClose(){
+  if (playerMode === 'real'){
+    episodeAudio.pause();
+    episodeAudio.currentTime = 0;
+  } else if (playerMode === 'demo'){
+    stopDemo();
+  }
+  duckBgm(false);
+  document.getElementById('playerBar').classList.remove('show');
+  setPbProgress(0, 0);
+  playerMode = null;
+}
+/* ============ storage (comments + account) ============ */
+async function getJSON(key, shared){
+  try{
+    const r = await window.storage.get(key, !!shared);
+    return r ? JSON.parse(r.value) : null;
+  }catch(e){ return null; }
+}
+async function setJSON(key, value, shared){
+  try{ await window.storage.set(key, JSON.stringify(value), !!shared); }catch(e){}
+}
+/* ============ countdown ============ */
+let countdownTimer = null;
+function startCountdown(targetISO){
+  clearInterval(countdownTimer);
+  function tick(){
+    const target = new Date(targetISO).getTime();
+    const now = Date.now();
+    let diff = Math.max(0, target - now);
+    const d = Math.floor(diff/86400000); diff -= d*86400000;
+    const h = Math.floor(diff/3600000); diff -= h*3600000;
+    const m = Math.floor(diff/60000); diff -= m*60000;
+    const s = Math.floor(diff/1000);
+    const set = (cls,val)=>{ document.querySelectorAll('.'+cls).forEach(el => el.textContent = toFa(pad2(val))); };
+    set('cd-days', d); set('cd-hours', h); set('cd-mins', m); set('cd-secs', s);
+    if (typeof refreshEpisodeStates === 'function') refreshEpisodeStates();
+  }
+  tick();
+  countdownTimer = setInterval(tick, 1000);
+}
+/* ============ content data ============ */
+const KHATERAT = {
+  title: 'خاطرات یک بازنده',
+  writer: 'محمد عماد حیدری',
+  narrator: 'علیرضا امیری',
+  producer: 'سارا اقبال‌نژاد',
+  music: 'علی نعمتی',
+  arrangement: 'محمد غدیریان',
+  synopsis: 'داستان دو جوانِ نسبتاً عاشق است که در اتفاقی هولناک، یکی از آن‌ها کشته می‌شود. پادکست از زاویه‌ی پسر جوان روایت می‌شود؛ کسی که دست به قتل دختری زده که دوستش داشته و حالا در حال اعتراف است.',
+  premiere: 'ساعت ۸ صبح، ۱۴ شهریور ۱۴۰۵',
+  premiereISO: '2026-09-05T08:00:00+03:30'
+};
+const KHATERAT_EPISODES = [
+  { n:1, dateFa:'ساعت ۸ صبح، ۱۴ شهریور ۱۴۰۵', iso:'2026-09-05T08:00:00+03:30', audioUrl: ASSET_EP1_AUDIO },
+  { n:2, dateFa:'ساعت ۸ صبح، ۱۸ شهریور ۱۴۰۵', iso:'2026-09-09T08:00:00+03:30', audioUrl: null },
+  { n:3, dateFa:'ساعت ۸ صبح، ۲۱ شهریور ۱۴۰۵', iso:'2026-09-12T08:00:00+03:30', audioUrl: null },
+  { n:4, dateFa:'ساعت ۸ صبح، ۲۵ شهریور ۱۴۰۵', iso:'2026-09-16T08:00:00+03:30', audioUrl: null },
+  { n:5, dateFa:'ساعت ۸ صبح، ۲۸ شهریور ۱۴۰۵', iso:'2026-09-19T08:00:00+03:30', audioUrl: null },
+  { n:6, dateFa:'ساعت ۸ صبح، ۱ مهر ۱۴۰۵',    iso:'2026-09-23T08:00:00+03:30', audioUrl: null }
+];
+const FARZAND = { title: 'فرزند سکوت' };
+/* ============ views ============ */
+function viewHome(){
+  return `
+  <section class="hero">
+    <div class="hero-eyebrow">پادکست‌های روایی و مستند</div>
+    <h1>اتاق روایت</h1>
+    <p class="tagline">هر داستانی آغازی دارد</p>
+    <div class="scrolldown">برای دیدن پادکست‌ها پایین بروید ↓</div>
+  </section>
+  <section class="wrap shelf">
+    <div class="section-label">پادکست‌ها</div>
+    <div class="showgrid">
+      <a href="#khaterat" class="showcard" data-nav data-route="khaterat">
+        <div class="art">
+          <img src="${ASSET_KHATERAT_POSTER}" alt="پوستر پادکست خاطرات یک بازنده">
+          <span class="badge" id="homeBadge">...</span>
+        </div>
+        <div class="meta">
+          <h3>خاطرات یک بازنده</h3>
+          <p class="desc">بر اساس یک رابطه‌ی کاملاً واقعی. روایتی از عشق، اعتراف و آن‌چه پس از یک شب هولناک باقی ماند.</p>
+        </div>
+      </a>
+      <a href="#farzand" class="showcard" data-nav data-route="farzand">
+        <div class="art">
+          <img src="${ASSET_FARZAND_POSTER}" alt="پوستر پادکست فرزند سکوت">
+          <span class="badge soon">به‌زودی</span>
+        </div>
+        <div class="meta">
+          <h3>فرزند سکوت</h3>
+          <p class="desc">بر اساس واقعیت است. جزئیات این پادکست به‌زودی منتشر می‌شود.</p>
+        </div>
+      </a>
+      <a href="#bikhodahafezi" class="showcard" data-nav data-route="bikhodahafezi">
+        <div class="art">
+          <img src="${ASSET_BIKHODA_POSTER}" alt="پوستر پادکست بی خداحافظی">
+          <span class="badge">در حال پخش</span>
+        </div>
+        <div class="meta">
+          <h3>بی خداحافظی</h3>
+          <p class="desc">قسمت اول هم‌اکنون در دسترس است.</p>
+        </div>
+      </a>
+    </div>
+  </section>`;
+}
+function buildEpisodeRow(ep){
+  const released = Date.now() >= new Date(ep.iso).getTime();
+  const stateText = released ? ('منتشر شده — ' + ep.dateFa) : ('در انتظار پخش — از ' + ep.dateFa);
+  const lockedClass = released ? '' : ' locked';
+  const disabledAttr = released ? '' : ' disabled';
+  const titleAttr = released ? 'پخش' : ('از ' + ep.dateFa + ' در دسترس است');
+  const icon = released
+    ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+  return `
+    <div class="eprow" data-ep-iso="${ep.iso}">
+      <div class="epnum">${toFa(pad2(ep.n))}</div>
+      <div class="epinfo">
+        <div class="eptitle">قسمت ${toFa(ep.n)}</div>
+        <div class="epstate">${stateText}</div>
+      </div>
+      <button class="epbtn${lockedClass}" title="${titleAttr}" data-ep="${ep.n}"${disabledAttr}>
+        ${icon}
+      </button>
+    </div>`;
+}
+function playEpisode(n){
+  const ep = KHATERAT_EPISODES.find(e => e.n === n);
+  if (!ep) return;
+  const title = 'قسمت ' + toFa(ep.n) + ' — خاطرات یک بازنده';
+  const sub = 'گوینده: ' + KHATERAT.narrator;
+  if (ep.audioUrl) playRealEpisode(ep.audioUrl, title, sub);
+  else playDemo(title, sub);
+}
+function bindEpisodeButtons(){
+  document.querySelectorAll('.epbtn[data-ep]:not(.locked)').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ playEpisode(Number(btn.dataset.ep)); });
+  });
+}
+function refreshEpisodeStates(){
+  document.querySelectorAll('.eprow[data-ep-iso]').forEach(row=>{
+    const btn = row.querySelector('.epbtn');
+    if (!btn || !btn.classList.contains('locked')) return;
+    if (Date.now() < new Date(row.dataset.epIso).getTime()) return;
+    const n = Number(btn.dataset.ep);
+    const ep = KHATERAT_EPISODES.find(e => e.n === n);
+    if (!ep) return;
+    btn.classList.remove('locked');
+    btn.removeAttribute('disabled');
+    btn.title = 'پخش';
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+    const stateEl = row.querySelector('.epstate');
+    if (stateEl) stateEl.textContent = 'منتشر شده — ' + ep.dateFa;
+    btn.addEventListener('click', ()=>{ playEpisode(n); });
+  });
+}
+function viewKhaterat(){
+  const epRows = KHATERAT_EPISODES.map(buildEpisodeRow).join('');
+  return `
+  <section class="phero">
+    <div class="bg"><img src="${ASSET_KHATERAT_POSTER}" alt="پوستر خاطرات یک بازنده"></div>
+    <div class="phero-content">
+      <img class="phero-logo" src="${ASSET_KHATERAT_LOGO}" alt="لوگوی خاطرات یک بازنده">
+      <div class="phero-tag">پادکست — بر اساس یک رابطه‌ی کاملاً واقعی</div>
+      <span class="phero-premiere">از ${KHATERAT.premiere} شروع به پخش خواهد کرد</span>
+    </div>
+  </section>
+  <section class="wrap pbody">
+    <div class="section-label">درباره‌ی پادکست</div>
+    <p class="synopsis">${KHATERAT.synopsis}</p>
+    <dl class="credits">
+      <div class="credit"><dt>نویسنده و ایده‌پردازی</dt><dd>${KHATERAT.writer}</dd></div>
+      <div class="credit"><dt>گوینده</dt><dd>${KHATERAT.narrator}</dd></div>
+      <div class="credit"><dt>مدیر تولید و تهیه‌کننده</dt><dd>${KHATERAT.producer}</dd></div>
+      <div class="credit"><dt>انتخاب موسیقی</dt><dd>${KHATERAT.music}</dd></div>
+      <div class="credit"><dt>تنظیم</dt><dd>${KHATERAT.arrangement}</dd></div>
+    </dl>
+    <div class="countdown">
+      <div class="cd-label">تا شروع پخش</div>
+      <div class="cd-grid">
+        <div class="cd-unit"><div class="cd-num cd-days">۰۰</div><div class="cd-word">روز</div></div>
+        <div class="cd-unit"><div class="cd-num cd-hours">۰۰</div><div class="cd-word">ساعت</div></div>
+        <div class="cd-unit"><div class="cd-num cd-mins">۰۰</div><div class="cd-word">دقیقه</div></div>
+        <div class="cd-unit"><div class="cd-num cd-secs">۰۰</div><div class="cd-word">ثانیه</div></div>
+      </div>
+    </div>
+    <div class="episodes">
+      <div class="section-label">قسمت‌ها (۶ قسمت)</div>
+      <div class="eplist">${epRows}</div>
+      <div class="demoplayer-cta">
+        <button class="btn" id="demoPlayBtn">پخش نمونه‌ی پلیر</button>
+        <span class="hint">قسمت‌های اصلی بعد از ${KHATERAT.premiere} فعال می‌شوند — این فقط نمایشِ عملکرد پلیر است.</span>
+      </div>
+    </div>
+    <div class="comments" id="commentsRoot" data-slug="khaterat" data-title="خاطرات یک بازنده">
+      <div class="section-label">نظرات</div>
+      <div class="comment-list" id="commentList"></div>
+      <p class="empty-note" id="commentEmpty" hidden>هنوز نظری ثبت نشده — اولین نفر باشید.</p>
+      <form class="comment-form" id="commentForm">
+        <input type="text" id="commentName" placeholder="نام شما" required maxlength="60">
+        <textarea id="commentText" placeholder="نظرتان را درباره‌ی این پادکست بنویسید…" required maxlength="600"></textarea>
+        <button type="submit" class="btn">ارسال نظر</button>
+      </form>
+    </div>
+  </section>`;
+}
+function viewFarzand(){
+  return `
+  <section class="phero" style="min-height:70vh;">
+    <div class="bg"><img src="${ASSET_FARZAND_POSTER}" alt="پوستر فرزند سکوت"></div>
+    <div class="phero-content">
+      <h1 style="font-size:clamp(1.8rem,5vw,2.8rem);">فرزند سکوت</h1>
+      <div class="phero-tag">بر اساس واقعیت است</div>
+    </div>
+  </section>
+  <section class="wrap soon-body">
+    <p>جزئیات این پادکست هنوز منتشر نشده. به محض آماده شدن، تاریخ پخش و اطلاعات کامل همین‌جا اعلام می‌شود.</p>
+    <div class="comments" id="commentsRoot" data-slug="farzand" data-title="فرزند سکوت" style="text-align:right;max-width:640px;margin:70px auto 0;">
+      <div class="section-label">نظرات</div>
+      <div class="comment-list" id="commentList"></div>
+      <p class="empty-note" id="commentEmpty" hidden>هنوز نظری ثبت نشده — اولین نفر باشید.</p>
+      <form class="comment-form" id="commentForm">
+        <input type="text" id="commentName" placeholder="نام شما" required maxlength="60">
+        <textarea id="commentText" placeholder="نظرتان را بنویسید…" required maxlength="600"></textarea>
+        <button type="submit" class="btn">ارسال نظر</button>
+      </form>
+    </div>
+  </section>`;
+}
+function viewBikhoda(){
+  return `
+  <section class="phero" style="min-height:70vh;">
+    <div class="bg"><img src="${ASSET_BIKHODA_POSTER}" alt="پوستر پادکست بی خداحافظی"></div>
+    <div class="phero-content">
+      <h1 style="font-size:clamp(1.8rem,5vw,2.8rem);">بی خداحافظی</h1>
+      <span class="phero-premiere">در حال پخش</span>
+    </div>
+  </section>
+  <section class="wrap soon-body">
+    <p>این پادکست هم‌اکنون در حال پخش است. قسمت اول در دسترس است؛ قسمت‌های بعدی به‌زودی اضافه می‌شوند.</p>
+    <div class="episodes" style="max-width:640px;margin:56px auto 0;text-align:right;">
+      <div class="section-label">قسمت‌ها</div>
+      <div class="eplist">
+        <div class="eprow">
+          <div class="epnum">۰۱</div>
+          <div class="epinfo">
+            <div class="eptitle">قسمت ۱</div>
+            <div class="epstate">منتشر شده</div>
+          </div>
+          <button class="epbtn" title="پخش" id="bikhodaEp1Btn">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="comments" id="commentsRoot" data-slug="bikhodahafezi" data-title="بی خداحافظی" style="text-align:right;max-width:640px;margin:56px auto 0;">
+      <div class="section-label">نظرات</div>
+      <div class="comment-list" id="commentList"></div>
+      <p class="empty-note" id="commentEmpty" hidden>هنوز نظری ثبت نشده — اولین نفر باشید.</p>
+      <form class="comment-form" id="commentForm">
+        <input type="text" id="commentName" placeholder="نام شما" required maxlength="60">
+        <textarea id="commentText" placeholder="نظرتان را بنویسید…" required maxlength="600"></textarea>
+        <button type="submit" class="btn">ارسال نظر</button>
+      </form>
+    </div>
+  </section>`;
+}
+async function viewAccount(){
+  const profile = await getJSON('account-profile', false);
+  if (profile){
+    return `
+    <section class="account-wrap">
+      <div class="account-card welcome-box">
+        <div class="avatar">${escapeHTML((profile.name||'?').trim().charAt(0) || '?')}</div>
+        <h2>خوش آمدید، ${escapeHTML(profile.name)}</h2>
+        <p class="sub">${escapeHTML(profile.email)}</p>
+        <button class="btn ghost" id="signOutBtn" style="width:100%;justify-content:center;margin-top:18px;">خروج از حساب</button>
+        <p class="account-note">این حساب فقط روی همین مرورگر ذخیره شده و برای شخصی‌سازی نظرات شماست؛ سامانه‌ی ورود امن جداگانه‌ای پشت آن نیست.</p>
+      </div>
+    </section>`;
+  }
+  return `
+  <section class="account-wrap">
+    <div class="account-card">
+      <h2>ساخت حساب</h2>
+      <p class="sub">برای ثبت نظر با نام خودتان، یک حساب بسازید.</p>
+      <form class="account-form" id="accountForm">
+        <div class="field"><label for="accName">نام</label><input type="text" id="accName" required maxlength="60"></div>
+        <div class="field"><label for="accEmail">ایمیل</label><input type="email" id="accEmail" required></div>
+        <div class="field"><label for="accPass">رمز عبور</label><input type="password" id="accPass" required minlength="4"></div>
+        <button type="submit" class="btn">ساخت حساب</button>
+      </form>
+      <p class="account-note">این حساب فقط روی همین مرورگر ذخیره می‌شود و صرفاً برای شخصی‌سازی تجربه‌ی شماست.</p>
+    </div>
+  </section>`;
+}
+/* ============ comments render/bind ============ */
+async function loadComments(root){
+  const slug = root.dataset.slug;
+  const list = await getJSON('comments-'+slug, true) || [];
+  const listEl = root.querySelector('#commentList');
+  const emptyEl = root.querySelector('#commentEmpty');
+  listEl.innerHTML = list.slice().reverse().map(c => `
+    <div class="comment">
+      <div class="c-head"><span class="c-name">${escapeHTML(c.name)}</span><span class="c-time">${relTime(c.ts)}</span></div>
+      <div class="c-text">${escapeHTML(c.text)}</div>
+    </div>`).join('');
+  emptyEl.hidden = list.length !== 0;
+}
+function escapeHTML(s){
+  return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function relTime(ts){
+  const diff = Math.floor((Date.now()-ts)/1000);
+  if (diff < 60) return 'همین الان';
+  if (diff < 3600) return toFa(Math.floor(diff/60)) + ' دقیقه پیش';
+  if (diff < 86400) return toFa(Math.floor(diff/3600)) + ' ساعت پیش';
+  return toFa(Math.floor(diff/86400)) + ' روز پیش';
+}
+/* ============ router ============ */
+async function render(){
+  const hash = (location.hash || '#home').replace('#','');
+  const app = document.getElementById('app');
+  clearInterval(countdownTimer);
+  document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active', a.dataset.route===hash));
+  if (hash === 'khaterat'){
+    app.innerHTML = viewKhaterat();
+    startCountdown(KHATERAT.premiereISO);
+    bindComments();
+    bindEpisodeButtons();
+    document.getElementById('demoPlayBtn').addEventListener('click', ()=>{
+      playDemo('نمونه‌ی پلیر — خاطرات یک بازنده', 'پیش‌نمایش رابط پخش');
+    });
+  } else if (hash === 'farzand'){
+    app.innerHTML = viewFarzand();
+    bindComments();
+  } else if (hash === 'bikhodahafezi'){
+    app.innerHTML = viewBikhoda();
+    bindComments();
+    const bikhodaBtn = document.getElementById('bikhodaEp1Btn');
+    if (bikhodaBtn) bikhodaBtn.addEventListener('click', ()=>{
+      playRealEpisode(ASSET_BIKHODA_EP1_AUDIO, 'قسمت ۱ — بی خداحافظی', '');
+    });
+  } else if (hash === 'account'){
+    app.innerHTML = await viewAccount();
+    bindAccount();
+  } else {
+    app.innerHTML = viewHome();
+    updateHomeBadge();
+  }
+  window.scrollTo({top:0, behavior:'instant' in window ? 'instant' : 'auto'});
+}
+function updateHomeBadge(){
+  const badge = document.getElementById('homeBadge');
+  if (!badge) return;
+  function tick(){
+    const target = new Date(KHATERAT.premiereISO).getTime();
+    const diff = Math.max(0, target - Date.now());
+    const d = Math.floor(diff/86400000);
+    badge.textContent = d > 0 ? (toFa(d) + ' روز تا پخش') : 'در حال پخش';
+  }
+  tick();
+  clearInterval(updateHomeBadge._tm);
+  updateHomeBadge._tm = setInterval(tick, 60000);
+}
+function bindComments(){
+  const root = document.getElementById('commentsRoot');
+  loadComments(root);
+  document.getElementById('commentForm').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const nameEl = document.getElementById('commentName');
+    const textEl = document.getElementById('commentText');
+    const name = nameEl.value.trim(), text = textEl.value.trim();
+    if (!name || !text) return;
+    const slug = root.dataset.slug;
+    const list = await getJSON('comments-'+slug, true) || [];
+    list.push({name, text, ts: Date.now()});
+    await setJSON('comments-'+slug, list, true);
+    textEl.value = '';
+    showToast('نظر شما ثبت شد');
+    loadComments(root);
+  });
+}
+async function bindAccount(){
+  const form = document.getElementById('accountForm');
+  if (form){
+    form.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const name = document.getElementById('accName').value.trim();
+      const email = document.getElementById('accEmail').value.trim();
+      await setJSON('account-profile', {name, email, ts: Date.now()}, false);
+      showToast('حساب شما ساخته شد');
+      render();
+    });
+  }
+  const signOut = document.getElementById('signOutBtn');
+  if (signOut){
+    signOut.addEventListener('click', async ()=>{
+      try{ await window.storage.delete('account-profile', false); }catch(e){}
+      showToast('از حساب خارج شدید');
+      render();
+    });
+  }
+}
+/* ============ global bindings ============ */
+window.addEventListener('hashchange', render);
+let justAutoStarted = false;
+document.getElementById('soundToggle').addEventListener('click', ()=>{
+  if (justAutoStarted){
+    justAutoStarted = false;
+    showToast('موسیقی زمینه روشن شد');
+    return;
+  }
+  if (!bgmStarted){ startBgm(); showToast('موسیقی زمینه روشن شد'); return; }
+  setBgmOn(!bgmOn);
+  showToast(bgmOn ? 'موسیقی زمینه روشن شد' : 'موسیقی زمینه خاموش شد');
+});
+document.addEventListener('pointerdown', function initOnce(){
+  if (!bgmStarted){
+    startBgm();
+    justAutoStarted = true;
+    setTimeout(()=>{ justAutoStarted = false; }, 0);
+  }
+  document.removeEventListener('pointerdown', initOnce);
+}, {once:true});
+document.getElementById('pbPlay').addEventListener('click', playerToggle);
+document.getElementById('pbClose').addEventListener('click', playerClose);
+document.getElementById('pbVol').addEventListener('input', (e)=>{
+  if (playerMode === 'real') episodeAudio.volume = e.target.value/100;
+  else applyDemoGain(demoPlaying);
+});
+document.getElementById('pbBar').addEventListener('click', (e)=>{
+  const rect = e.currentTarget.getBoundingClientRect();
+  let ratio = (e.clientX - rect.left) / rect.width;
+  if (document.dir === 'rtl' || document.documentElement.dir === 'rtl') ratio = 1 - ratio;
+  ratio = Math.min(1, Math.max(0, ratio));
+  if (playerMode === 'real'){
+    if (episodeAudio.duration) episodeAudio.currentTime = ratio * episodeAudio.duration;
+  } else if (playerMode === 'demo'){
+    demoElapsed = ratio * DEMO_DURATION;
+    demoStartCtxTime = actx.currentTime - demoElapsed;
+    setPbProgress(demoElapsed, DEMO_DURATION);
+  }
+});
+/* ============ boot ============ */
+buildSkyline();
+render();
+</script>
+</body>
+</html>
